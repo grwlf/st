@@ -1549,7 +1549,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		XftColorAllocValue(xw.dpy, xw.vis, xw.cmap, &colfg, &truefg);
 		fg = &truefg;
 	} else {
-		fg = &dc.col[base.fg];
+		fg = &dc.col[MIN(dc.collen-1, base.fg)];
 	}
 
 	if (IS_TRUECOL(base.bg)) {
@@ -1560,7 +1560,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		XftColorAllocValue(xw.dpy, xw.vis, xw.cmap, &colbg, &truebg);
 		bg = &truebg;
 	} else {
-		bg = &dc.col[base.bg];
+		bg = &dc.col[MIN(dc.collen-1, base.bg)];
 	}
 
 	/* Change basic system colors [0-7] to bright system colors [8-15] */

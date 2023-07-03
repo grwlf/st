@@ -1469,10 +1469,7 @@ tdefcolor(const int *attr, int *npar, int l)
 			break;
 		}
 		*npar += 2;
-		if (!BETWEEN(attr[*npar], 0, 255))
-			fprintf(stderr, "erresc: bad fgcolor %d\n", attr[*npar]);
-		else
-			idx = attr[*npar];
+		idx = attr[*npar];
 		break;
 	case 0: /* implemented defined (only foreground) */
 	case 1: /* transparent */
