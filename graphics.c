@@ -1554,13 +1554,18 @@ void gr_finish_drawing(Drawable buf) {
 
 		Display *disp = imlib_context_get_display();
 		GC gc = XCreateGC(disp, buf, 0, NULL);
+		const char *debug_mode_str =
+			graphics_debug_mode == GRAPHICS_DEBUG_LOG_AND_BOXES
+				? "(boxes shown) "
+				: "";
 		char info[MAX_INFO_LEN];
 		snprintf(info, MAX_INFO_LEN,
-			 "Frame rendering time: %d ms  Image storage ram: %ld "
+			 "%sFrame rendering time: %d ms  "
+			 "Image storage ram: %ld "
 			 "KiB disk: %ld KiB  count: %d   cell %dx%d",
-			 milliseconds, images_ram_size / 1024,
-			 images_disk_size / 1024, kh_size(images),
-			 current_cw, current_ch);
+			 debug_mode_str, milliseconds, images_ram_size / 1024,
+			 images_disk_size / 1024, kh_size(images), current_cw,
+			 current_ch);
 		XSetForeground(disp, gc, 0x000000);
 		XFillRectangle(disp, buf, gc, 0, 0, 600, 16);
 		XSetForeground(disp, gc, 0xFFFFFF);
