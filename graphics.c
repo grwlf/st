@@ -767,8 +767,7 @@ static void gr_infer_placement_size_maybe(ImagePlacement *placement) {
 		return;
 	}
 
-	// It doesn't seem to be documented anywhere, but some applications
-	// specify only one of the dimensions.
+	// Some applications specify only one of the dimensions.
 	if (placement->scale_mode == SCALE_MODE_CONTAIN) {
 		// If we preserve aspect ratio and fit to width/height, the most
 		// logical thing is to find the minimum size of the
@@ -791,7 +790,12 @@ static void gr_infer_placement_size_maybe(ImagePlacement *placement) {
 	} else {
 		// Otherwise we stretch the image or preserve the original size.
 		// In both cases we compute the best number of columns from the
-		// pixel size and cell size to be compatible with kitty.
+		// pixel size and cell size.
+		// TODO: In the case of stretching it's not the most logical
+		//       thing to do, may need to revisit in the future.
+		//       Currently we switch to SCALE_MODE_CONTAIN when only one
+		//       of the dimensions is specified, so this case shouldn't
+		//       happen in practice.
 		if (!placement->cols)
 			placement->cols =
 				ceil_div(placement->src_pix_width, current_cw);
@@ -2217,12 +2221,21 @@ static void gr_handle_put_command(GraphicsCommand *cmd) {
 	placement->rows = cmd->rows;
 	placement->do_not_move_cursor = cmd->do_not_move_cursor;
 
-	if (placement->virtual)
+	if (placement->virtual) {
 		placement->scale_mode = SCALE_MODE_CONTAIN;
-	else if (placement->cols || placement->rows)
+	} else if (placement->cols && placement->rows) {
+		// For classic placements the default is to stretch the image if
+		// both cols and rows are specified.
 		placement->scale_mode = SCALE_MODE_FILL;
-	else
+	} else if (placement->cols || placement->rows) {
+		// But if only one of them is specified, the default is to
+		// contain.
+		placement->scale_mode = SCALE_MODE_CONTAIN;
+	} else {
+		// If none of them are specified, the default is to use the
+		// original size.
 		placement->scale_mode = SCALE_MODE_NONE;
+	}
 
 	// Display the placement unless it's virtual.
 	gr_display_nonvirtual_placement(placement);
